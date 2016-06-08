@@ -1,0 +1,86 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/colorWhite">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@+id/myVisualizerView">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <TextView
+                android:id="@+id/description_heading"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/heading1"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:textColor="@color/colorGray" />
+
+            <TextView
+                android:id="@+id/description"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="A preliminary test required for issue of Learner's License. Competency test has to be conducted after 30 days from issue of Learner."
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:textColor="@color/colorDarkGray" />
+        </LinearLayout>
+    </ScrollView>
+
+    <com.example.tcs.bskill.Utilities.Vizualizer.VisualizerView
+        android:id="@+id/myVisualizerView"
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        android:layout_above="@+id/audio"
+        android:background="@color/colorWhite"
+        android:padding="10dp" />
+
+    <RelativeLayout
+        android:id="@+id/audio"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:background="@drawable/background_image">
+
+
+        <ProgressBar
+            android:id="@+id/progressBar"
+            style="@style/CustomProgressBar"
+            android:layout_width="match_parent"
+            android:layout_height="10dp"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"
+            android:layout_margin="12dp"
+            android:progress="0"
+            android:progressDrawable="@drawable/custom_progress" />
+
+        <com.github.rahatarmanahmed.cpv.CircularProgressView xmlns:app="http://schemas.android.com/apk/res-auto"
+            android:id="@+id/progress_view"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"
+            android:visibility="invisible"
+            app:cpv_animAutostart="true"
+            app:cpv_color="@color/colorWhite"
+            app:cpv_indeterminate="true"
+            app:cpv_thickness="15px" />
+
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/fab"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"
+            android:src="@android:drawable/ic_media_play"
+            app:elevation="5dp"
+            app:fabSize="mini" />
+    </RelativeLayout>
+</RelativeLayout>

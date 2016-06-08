@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/colorWhite"
+    android:fitsSystemWindows="true"
+    tools:context="com.example.tcs.bskill.Activities.QuizActivity">
+
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+
+        android:layout_height="?attr/actionBarSize"
+        android:background="?attr/colorPrimaryDark"
+        app:popupTheme="@style/AppTheme" />
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="@dimen/activity_horizontal_margin">
+
+        <android.support.v7.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="2"
+            android:id="@+id/question"
+            app:cardBackgroundColor="#c8010f8b"
+            >
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:text="Hello, I am a Question!"
+                android:gravity="center_horizontal|center_vertical"
+                android:textSize="20sp"
+                android:textColor="#fff"
+                android:textStyle="italic"
+                android:padding="@dimen/cardview_default_elevation"/>
+        </android.support.v7.widget.CardView>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="4"
+        android:layout_marginTop="@dimen/activity_horizontal_margin"
+        android:orientation="vertical"
+        android:background="#1e1224ec"
+        >
+
+        <android.support.v7.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:id="@+id/option1"
+            android:layout_margin="5dp"
+            app:cardBackgroundColor="#60E8EAF6"
+            >
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:text="I am Option1"
+            android:gravity="center_horizontal|center_vertical"
+            android:textSize="20sp"
+            android:textStyle="italic"
+            android:padding="@dimen/cardview_default_elevation"/>
+        </android.support.v7.widget.CardView>
+
+        <android.support.v7.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:id="@+id/option2"
+            android:layout_margin="5dp"
+            app:cardBackgroundColor="#60E8EAF6">
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:text="I am Option2"
+            android:gravity="center_horizontal|center_vertical"
+            android:textSize="20sp"
+            android:textStyle="italic"
+            android:padding="@dimen/cardview_default_elevation"/>
+        </android.support.v7.widget.CardView>
+
+        <android.support.v7.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:id="@+id/option3"
+            android:layout_margin="5dp"
+            app:cardBackgroundColor="#60E8EAF6">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:text="I am Option3"
+            android:gravity="center_horizontal|center_vertical"
+            android:textSize="20sp"
+            android:textStyle="italic"
+            android:padding="@dimen/cardview_default_elevation"/>
+
+        </android.support.v7.widget.CardView>
+
+        <android.support.v7.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:id="@+id/option4"
+            android:layout_margin="5dp"
+            app:cardBackgroundColor="#60E8EAF6">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:text="I am Option4"
+            android:gravity="center_horizontal|center_vertical"
+            android:textSize="20sp"
+            android:textStyle="italic"
+            android:padding="@dimen/cardview_default_elevation"/>
+
+        </android.support.v7.widget.CardView>
+
+        </LinearLayout>
+    </LinearLayout>
+</LinearLayout>
