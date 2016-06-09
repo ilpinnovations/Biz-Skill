@@ -80,6 +80,9 @@ public class QuizActivity extends AppCompatActivity implements Runnable {
             @Override
             public void onClick(View v) {
 
+                Log.d("Seconds", String.valueOf(sec));
+
+                next.setVisibility(View.VISIBLE);
                 next.setEnabled(true);
                 button_a.setClickable(false);
                 button_b.setClickable(false);
@@ -90,7 +93,7 @@ public class QuizActivity extends AppCompatActivity implements Runnable {
                     button_a.setBackgroundResource(R.drawable.correct);
                     button_a.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.ic_done_white_24dp, 0);
                     player_p.start();
-                    score = score + 1000;
+                    score = score + 1000 + (sec * 100);
                 } else {
                     button_a.setBackgroundResource(R.drawable.incorrect);
                     button_a.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.ic_highlight_off_white_24dp, 0);
@@ -108,7 +111,7 @@ public class QuizActivity extends AppCompatActivity implements Runnable {
                     }
                 }
                 player_score.setText(String.valueOf(score));
-                mysuspend();
+                mySuspend();
             }
         });
 
@@ -117,6 +120,9 @@ public class QuizActivity extends AppCompatActivity implements Runnable {
             @Override
             public void onClick(View v) {
 
+                Log.d("Seconds", String.valueOf(sec));
+
+                next.setVisibility(View.VISIBLE);
                 next.setEnabled(true);
                 button_a.setClickable(false);
                 button_b.setClickable(false);
@@ -126,7 +132,7 @@ public class QuizActivity extends AppCompatActivity implements Runnable {
                 if (ans.equals(op_b)) {
                     button_b.setBackgroundResource(R.drawable.correct);
                     button_b.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.ic_done_white_24dp, 0);
-                    score = score + 1000;
+                    score = score + 1000 + (sec * 100);
                     player_p.start();
                 } else {
                     button_b.setBackgroundResource(R.drawable.incorrect);
@@ -144,7 +150,7 @@ public class QuizActivity extends AppCompatActivity implements Runnable {
                     }
                 }
                 player_score.setText(String.valueOf(score));
-                mysuspend();
+                mySuspend();
             }
         });
 
@@ -154,6 +160,9 @@ public class QuizActivity extends AppCompatActivity implements Runnable {
             @Override
             public void onClick(View v) {
 
+                Log.d("Seconds", String.valueOf(sec));
+
+                next.setVisibility(View.VISIBLE);
                 next.setEnabled(true);
                 button_a.setClickable(false);
                 button_b.setClickable(false);
@@ -163,7 +172,7 @@ public class QuizActivity extends AppCompatActivity implements Runnable {
                 if (ans.equals(op_c)) {
                     button_c.setBackgroundResource(R.drawable.correct);
                     button_c.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.ic_done_white_24dp, 0);
-                    score = score + 1000;
+                    score = score + 1000 + (sec * 100);
                     player_p.start();
                 } else {
                     button_c.setBackgroundResource(R.drawable.incorrect);
@@ -181,7 +190,7 @@ public class QuizActivity extends AppCompatActivity implements Runnable {
                     }
                 }
                 player_score.setText(String.valueOf(score));
-                mysuspend();
+                mySuspend();
             }
         });
 
@@ -191,6 +200,9 @@ public class QuizActivity extends AppCompatActivity implements Runnable {
             @Override
             public void onClick(View v) {
 
+                Log.d("Seconds", String.valueOf(sec));
+
+                next.setVisibility(View.VISIBLE);
                 next.setEnabled(true);
                 button_a.setClickable(false);
                 button_b.setClickable(false);
@@ -201,7 +213,7 @@ public class QuizActivity extends AppCompatActivity implements Runnable {
                     button_d.setBackgroundResource(R.drawable.correct);
                     button_d.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.ic_done_white_24dp, 0);
                     player_p.start();
-                    score = score + 1000;
+                    score = score + 1000 + (sec * 100);
                 } else {
                     button_d.setBackgroundResource(R.drawable.incorrect);
                     button_d.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.ic_highlight_off_white_24dp, 0);
@@ -218,12 +230,11 @@ public class QuizActivity extends AppCompatActivity implements Runnable {
                     }
                 }
                 player_score.setText(String.valueOf(score));
-                mysuspend();
+                mySuspend();
             }
         });
 
         next.setOnClickListener(new OnClickListener() {
-
             @Override
             public void onClick(View v) {
 
@@ -241,6 +252,8 @@ public class QuizActivity extends AppCompatActivity implements Runnable {
     }
 
     public void setQuestion() {
+
+        next.setVisibility(View.INVISIBLE);
 
         if ((questionBeanListIndex + 1) > getQuestionBeanListSize) {
             finish();
@@ -322,13 +335,16 @@ public class QuizActivity extends AppCompatActivity implements Runnable {
                     if (min == -1) {
                         timer.setText("00");
                         progressBar.setProgress(0);
-                        mysuspend();
+                        mySuspend();
 
+                        next.setVisibility(View.VISIBLE);
                         next.setEnabled(true);
                         button_a.setClickable(false);
                         button_b.setClickable(false);
                         button_c.setClickable(false);
                         button_d.setClickable(false);
+
+                        player_n.start();
 
                         score = score - 1000;
                         player_score.setText(String.valueOf(score));
@@ -379,7 +395,7 @@ public class QuizActivity extends AppCompatActivity implements Runnable {
         }
     }
 
-    synchronized void mysuspend() {
+    synchronized void mySuspend() {
         sf = true;
 
         min = 0;
@@ -388,7 +404,7 @@ public class QuizActivity extends AppCompatActivity implements Runnable {
         sc = 30;
     }
 
-    synchronized void myresume() {
+    synchronized void myResume() {
         sf = false;
         notify();
     }

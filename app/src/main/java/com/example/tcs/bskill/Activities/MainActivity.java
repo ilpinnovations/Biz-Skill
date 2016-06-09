@@ -3,6 +3,7 @@ package com.example.tcs.bskill.Activities;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.speech.RecognizerIntent;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
 import android.support.v4.view.GravityCompat;
@@ -13,6 +14,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -31,6 +33,7 @@ import com.example.tcs.bskill.R;
 import com.example.tcs.bskill.Utilities.ConnectionDetector;
 import com.github.rahatarmanahmed.cpv.CircularProgressView;
 import com.loopj.android.http.HttpGet;
+import com.miguelcatalan.materialsearchview.MaterialSearchView;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -51,7 +54,7 @@ public class MainActivity extends AppCompatActivity implements Communicator {
     DrawerLayout drawerLayout;
     Toolbar toolbar;
     ActionBar actionBar;
-    ArrayList<CourseBean> courseBeanList;
+    ArrayList<CourseBean> courseBeanList, filteredList;
     SwipeRefreshLayout swipeRefreshLayout;
     RecyclerView recyclerView;
     String jsonStr = "", courseID, courseName, courseDesc, courseAudioURL, courseVideoURL;
@@ -60,6 +63,7 @@ public class MainActivity extends AppCompatActivity implements Communicator {
     NavigationView navigationView;
     ProgressBar overallProgress;
     ConnectionDetector cd;
+    MaterialSearchView searchView;
     TextView internet, problem_loading_courses, overallProgressPercent;
     DatabaseHandlerCourseStatus db;
 
@@ -83,6 +87,7 @@ public class MainActivity extends AppCompatActivity implements Communicator {
         problem_loading_courses = (TextView) findViewById(R.id.problem_loading_courses);
         overallProgress = (ProgressBar) findViewById(R.id.overallProgress);
         overallProgressPercent = (TextView) findViewById(R.id.overallProgressPercent);
+        searchView = (MaterialSearchView) findViewById(R.id.search_view);
 
         navigationView = (NavigationView) findViewById(R.id.navigation_view);
         if (navigationView != null) {
@@ -92,6 +97,48 @@ public class MainActivity extends AppCompatActivity implements Communicator {
         recyclerView = (RecyclerView) findViewById(R.id.courseList);
         GridLayoutManager gridLayoutManager = new GridLayoutManager(this, 2);
         recyclerView.setLayoutManager(gridLayoutManager);
+
+        /**Setting Up Search View**/
+        searchView.setCursorDrawable(R.drawable.custom_cursor);
+        searchView.setVoiceSearch(true);
+        searchView.setEllipsize(true);
+        searchView.setOnQueryTextListener(new MaterialSearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+
+                filteredList = new ArrayList<>();
+                if (newText.length() == 0) {
+                    filteredList.addAll(courseBeanList);
+                } else {
+                    final String filterPattern = newText.toLowerCase().trim();
+
+                    for (final CourseBean courseBean : courseBeanList) {
+                        if (courseBean.getCourseName().toLowerCase().contains(filterPattern)) {
+                            filteredList.add(courseBean);
+                        }
+                    }
+                }
+                CourseRecyclerAdapter courseRecyclerAdapter = new CourseRecyclerAdapter(MainActivity.this, filteredList);
+                recyclerView.setAdapter(courseRecyclerAdapter);
+
+                return false;
+            }
+        });
+
+        searchView.setOnSearchViewListener(new MaterialSearchView.SearchViewListener() {
+            @Override
+            public void onSearchViewShown() {
+            }
+
+            @Override
+            public void onSearchViewClosed() {
+            }
+        });
 
         db = new DatabaseHandlerCourseStatus(this);
 
@@ -140,6 +187,22 @@ public class MainActivity extends AppCompatActivity implements Communicator {
 
             }
         });
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == MaterialSearchView.REQUEST_VOICE && resultCode == RESULT_OK) {
+            ArrayList<String> matches = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
+            if (matches != null && matches.size() > 0) {
+                String searchWrd = matches.get(0);
+                if (!TextUtils.isEmpty(searchWrd)) {
+                    searchView.setQuery(searchWrd, false);
+                }
+            }
+
+            return;
+        }
+        super.onActivityResult(requestCode, resultCode, data);
     }
 
     public void myProgress(View v) {
@@ -282,12 +345,6 @@ public class MainActivity extends AppCompatActivity implements Communicator {
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
-    }
-
-    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
@@ -347,5 +404,27 @@ public class MainActivity extends AppCompatActivity implements Communicator {
         i.putExtra("courseVideoURL", courseBean.getCourseVideoURL());
 
         startActivity(i);
+    }
+
+    @Override
+    public void onBackPressed() {
+
+        if (this.drawerLayout.isDrawerOpen(GravityCompat.START)) {
+            this.drawerLayout.closeDrawer(GravityCompat.START);
+        } else {
+            if (searchView.isSearchOpen()) {
+                searchView.closeSearch();
+            } else {
+                super.onBackPressed();
+            }
+        }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        MenuItem item = menu.findItem(R.id.action_search);
+        searchView.setMenuItem(item);
+        return true;
     }
 }

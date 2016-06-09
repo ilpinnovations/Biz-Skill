@@ -9,6 +9,8 @@
     <string name="title_activity_quiz">Quiz</string>
     <string name="title_activity_content">ContentActivity</string>
 
+    <string name="action_search">Search</string>
+
     <string name="a1">Biz Skill</string>
     <string name="a2">PERSONAL BUSINESS SKILL TRAINER</string>
     <string name="a3">LOCKED</string>
