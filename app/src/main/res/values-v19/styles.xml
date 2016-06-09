@@ -83,6 +83,12 @@
         <item name="android:maxHeight">20dip</item>
     </style>
 
+    <style name="AppCompatProgressDialogStyle" parent="Theme.AppCompat.Light.Dialog.Alert">
+        <item name="colorAccent">@color/colorPrimary</item>
+        <item name="windowNoTitle">true</item>
+        <item name="android:textColorPrimary">@color/colorDarkGray</item>
+    </style>
+
     <style name="CustomProgressBarCard3" parent="android:Widget.ProgressBar.Horizontal">
         <item name="android:indeterminateOnly">false</item>
         <item name="android:progressDrawable">@drawable/custom_progress_card3</item>

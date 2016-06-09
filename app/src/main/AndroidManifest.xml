@@ -35,9 +35,15 @@
             android:label="@string/title_activity_settings"
             android:theme="@style/AppTheme" />
         <activity
+            android:name=".Activities.QuizActivity2"
+            android:label="@string/title_activity_quiz"
+            android:theme="@style/AppTheme" />
+
+        <activity
             android:name=".Activities.QuizActivity"
             android:label="@string/title_activity_quiz"
             android:theme="@style/AppTheme" />
+
         <activity
             android:name=".Activities.ContentActivity"
             android:label="@string/title_activity_content"

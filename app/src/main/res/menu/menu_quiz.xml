@@ -1,0 +1,6 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+    
+    <item android:id="@+id/instuct" android:title="Instuctions"></item>
+    <item android:id="@+id/high" android:title="Top Scores"></item>
+
+</menu>

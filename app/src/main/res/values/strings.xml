@@ -13,9 +13,29 @@
     <string name="a2">PERSONAL BUSINESS SKILL TRAINER</string>
     <string name="a3">LOCKED</string>
     <string name="a4">UNLOCKED</string>
+    <string name="a5">START QUIZ</string>
+    <string name="a6">Lollipop</string>
+    <string name="b5">Name</string>
+    <string name="b6">Register</string>
+    <string name="b7">User Login</string>
+    <string name="b8">Login</string>
+    <string name="b9">Not a user yet? Register Now</string>
+    <string name="c1">Score</string>
+    <string name="c2">0</string>
+    <string name="c3">30</string>
+    <string name="c4">Next</string>
+    <string name="c5">What is the latest Android version?</string>
+    <string name="c6">sec</string>
+    <string name="c7">0/20</string>
+    <string name="ICON">TODO</string>
+    <string name="c8">20000</string>
+    <string name="c9">OK</string>
+    <string name="d1">You will get 20 questions in a single game. For each question you will get 30 seconds. Positive answers will be rewarded with 1000 points. There is no negative points for wrong answer. Select an option among the four and click Next button. Have fun!</string>
+    <string name="d2">Game Instuctions</string>
 
     <string name="heading1">Description</string>
 
+    <string name="message1">Loading Quiz...</string>
 
     <string name="prompt_email">Email</string>
     <string name="prompt_password">Password (optional)</string>

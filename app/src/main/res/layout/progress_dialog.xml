@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/colorWhite"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="10dp"
+        android:weightSum="5">
+
+        <com.github.rahatarmanahmed.cpv.CircularProgressView xmlns:app="http://schemas.android.com/apk/res-auto"
+            android:id="@+id/progress_view"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_gravity="center_vertical"
+            android:layout_weight="1"
+            android:visibility="visible"
+            app:cpv_animAutostart="true"
+            app:cpv_color="@color/colorPrimaryDarker"
+            app:cpv_indeterminate="true"
+            app:cpv_thickness="5dp" />
+
+        <android.support.v7.widget.AppCompatTextView
+            android:id="@+id/progress_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="20dp"
+            android:layout_weight="4"
+            android:text="Loading..."
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textColor="@color/colorDarkGray" />
+    </LinearLayout>
+</LinearLayout>

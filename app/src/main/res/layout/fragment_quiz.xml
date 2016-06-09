@@ -36,14 +36,32 @@
                 android:textColor="@color/colorGray"
                 android:textStyle="bold" />
         </LinearLayout>
-
     </LinearLayout>
+
+    <TextView
+        android:id="@+id/startQuiz"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/quizStatus"
+        android:layout_gravity="center"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+        android:layout_marginTop="20dp"
+        android:background="@drawable/touch"
+        android:clickable="true"
+        android:textStyle="bold"
+        android:gravity="center"
+        android:padding="15dp"
+        android:text="@string/a5"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:textColor="#ffffff" />
 
     <TextView
         android:id="@+id/quizStatus"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
+        android:layout_marginTop="0dp"
         android:background="@color/colorPrimaryDark"
         android:padding="10dp"
         android:text="Please complete Audio and Video sections to get the Key to open Quiz Lock"
