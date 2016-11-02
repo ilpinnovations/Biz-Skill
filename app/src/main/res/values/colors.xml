@@ -8,9 +8,11 @@
 
     <color name="colorButton">#23a6d7</color>
     <color name="colorBackground">#26bbf2</color>
+    <color name="colorLeaderBoard">#b3e5fc</color>
     <color name="colorWhite">#ffffff</color>
     <color name="colorLightGray">#f4f4f4</color>
     <color name="colorLightDarkerGray">#c0c0c0</color>
     <color name="colorGray">#898989</color>
+    <color name="colorlightgreen">#75ca78</color>
     <color name="colorDarkGray">#4d4d4d</color>
 </resources>

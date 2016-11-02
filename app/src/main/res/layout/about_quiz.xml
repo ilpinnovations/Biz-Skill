@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/colorWhite"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <android.support.v7.widget.AppCompatTextView
+        android:id="@+id/about_department_name"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="start"
+        android:padding="5dp"
+        android:text="Rules"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:textColor="@color/colorGray"
+        android:textStyle="bold" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <android.support.v7.widget.AppCompatTextView
+                android:id="@+id/rule1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="start"
+                android:padding="5dp"
+                android:text="
+•	Same weightage for every question (1000 points)"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:textColor="@color/colorGray" />
+            <android.support.v7.widget.AppCompatTextView
+                android:id="@+id/rule2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="start"
+                android:padding="5dp"
+                android:text="•	For every correct answer, bonus points depending upon time left"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:textColor="@color/colorGray" />
+            <android.support.v7.widget.AppCompatTextView
+                android:id="@+id/rule3"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="start"
+                android:padding="5dp"
+                android:text=" •	Negative marking for not attempting a question (-1000 points)"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:textColor="@color/colorGray" />
+            <android.support.v7.widget.AppCompatTextView
+                android:id="@+id/rule4"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="start"
+                android:padding="5dp"
+                android:text="•	For wrong answer, no negative marking."
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:textColor="@color/colorGray" />
+            <android.support.v7.widget.AppCompatTextView
+                android:id="@+id/rule5"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="start"
+                android:padding="5dp"
+                android:text="•  30 seconds for each question"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:textColor="@color/colorGray" />
+
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="right"
+                android:orientation="horizontal">
+
+                <android.support.v7.widget.AppCompatButton
+                    android:id="@+id/ok"
+                    style="@style/Widget.AppCompat.Button.Borderless"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="OK"
+                    android:textColor="@color/colorPrimaryDark"
+                    android:theme="@style/ButtonTheme" />
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </ScrollView>
+</LinearLayout>

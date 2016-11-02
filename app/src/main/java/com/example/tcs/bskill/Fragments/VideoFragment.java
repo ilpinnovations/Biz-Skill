@@ -12,12 +12,15 @@ import android.widget.Toast;
 import com.example.tcs.bskill.Activities.ContentActivity;
 import com.example.tcs.bskill.Beans.CourseDetailsBean;
 import com.example.tcs.bskill.Databases.DatabaseHandlerCourseStatus;
+import com.example.tcs.bskill.Interfaces.ReporterCallback;
 import com.example.tcs.bskill.R;
+import com.example.tcs.bskill.Utilities.ActivityReporter;
+import com.example.tcs.bskill.Utilities.PreferenceUtil;
 import com.google.android.youtube.player.YouTubeInitializationResult;
 import com.google.android.youtube.player.YouTubePlayer;
 import com.google.android.youtube.player.YouTubePlayerSupportFragment;
 
-public class VideoFragment extends android.support.v4.app.Fragment {
+public class VideoFragment extends android.support.v4.app.Fragment implements ReporterCallback {
     private static final String API_KEY = "AIzaSyALFWDKEVLY4UQMjU5b5qCkWmS1ArE0hgc";
     String courseVideoURL, courseID;
     YouTubePlayer YouPlayer;
@@ -88,6 +91,9 @@ public class VideoFragment extends android.support.v4.app.Fragment {
 
                         int overallProgressPercent = ((db.getAudioCount() + db.getVideoCount() + db.getQuizCount()) / (3 * db.getCourseDetailsCount())) * 100;
                         db.updateOverallProgress(String.valueOf(overallProgressPercent));
+
+                        ActivityReporter reporter = new ActivityReporter(getActivity(), VideoFragment.this, PreferenceUtil.getEmpID(getActivity()), courseID, 2, 0);
+                        reporter.execute();
                     }
 
                     @Override
@@ -151,12 +157,19 @@ public class VideoFragment extends android.support.v4.app.Fragment {
     public void onPause() {
         super.onPause();
 
-        if (YouPlayer.isPlaying())
+        if (YouPlayer != null && YouPlayer.isPlaying())
             YouPlayer.pause();
     }
 
     @Override
     public void onDestroyView() {
         super.onDestroyView();
+    }
+
+    @Override
+    public void onResult(String result) {
+        if (!isAdded())
+            return;
+        Toast.makeText(getActivity(), result, Toast.LENGTH_SHORT).show();
     }
 }

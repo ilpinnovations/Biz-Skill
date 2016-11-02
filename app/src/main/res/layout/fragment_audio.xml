@@ -49,7 +49,6 @@
         android:layout_alignParentBottom="true"
         android:background="@drawable/background_image">
 
-
         <ProgressBar
             android:id="@+id/progressBar"
             style="@style/CustomProgressBar"

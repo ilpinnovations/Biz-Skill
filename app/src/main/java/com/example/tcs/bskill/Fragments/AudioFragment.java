@@ -12,15 +12,19 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.tcs.bskill.Activities.ContentActivity;
 import com.example.tcs.bskill.Beans.CourseDetailsBean;
 import com.example.tcs.bskill.Databases.DatabaseHandlerCourseStatus;
+import com.example.tcs.bskill.Interfaces.ReporterCallback;
 import com.example.tcs.bskill.R;
+import com.example.tcs.bskill.Utilities.ActivityReporter;
+import com.example.tcs.bskill.Utilities.PreferenceUtil;
 import com.example.tcs.bskill.Utilities.Vizualizer.VisualizerView;
 import com.github.rahatarmanahmed.cpv.CircularProgressView;
 
-public class AudioFragment extends android.support.v4.app.Fragment implements MediaPlayer.OnCompletionListener, MediaPlayer.OnBufferingUpdateListener {
+public class AudioFragment extends android.support.v4.app.Fragment implements MediaPlayer.OnCompletionListener, MediaPlayer.OnBufferingUpdateListener, ReporterCallback {
 
     private CircularProgressView progressView;
     private MediaPlayer mediaPlayer = null;
@@ -33,7 +37,7 @@ public class AudioFragment extends android.support.v4.app.Fragment implements Me
     private boolean musicStarted = false;
     private int mediaFileLengthInMilliseconds;
     DatabaseHandlerCourseStatus db;
-    boolean gettingDestroyed = false;
+//    boolean gettingDestroyed = false;
 
     public AudioFragment() {
     }
@@ -99,13 +103,24 @@ public class AudioFragment extends android.support.v4.app.Fragment implements Me
 
     @Override
     public void onDestroyView() {
-        mediaPlayer.stop();
-        gettingDestroyed = true;
+        if (mediaPlayer != null)
+            mediaPlayer.stop();
+//        gettingDestroyed = true;
         super.onDestroyView();
     }
 
     @Override
     public void onBufferingUpdate(MediaPlayer mp, int percent) {
+    }
+
+    @Override
+    public void onResult(String result) {
+        if (!isAdded())
+            return;
+        if (progressView == null)
+            return;
+
+        Toast.makeText(getActivity(), result, Toast.LENGTH_SHORT).show();
     }
 
     class LoadAudio extends AsyncTask<Void, Integer, Void> {
@@ -158,24 +173,36 @@ public class AudioFragment extends android.support.v4.app.Fragment implements Me
     @Override
     public void onCompletion(MediaPlayer mp) {
 
-        if (!gettingDestroyed) {
-            floatingActionButton.setImageResource(android.R.drawable.ic_media_play);
+//        if (!gettingDestroyed) {
+        if (progressView == null)
+            return;
 
-            CourseDetailsBean courseDetailsBean1 = db.getCourseDetailsByID(courseID);
-            int courseProgress = ((1 + Integer.parseInt(courseDetailsBean1.getVideoStatus()) + Integer.parseInt(courseDetailsBean1.getQuizStatus())) * 100) / 3;
+        if (getActivity() == null)
+            return;
 
-            CourseDetailsBean courseDetailsBean = new CourseDetailsBean();
-            courseDetailsBean.setCourseID(courseID);
-            courseDetailsBean.setAudioStatus("1");
-            courseDetailsBean.setVideoStatus(courseDetailsBean1.getVideoStatus());
-            courseDetailsBean.setQuizStatus(courseDetailsBean1.getQuizStatus());
-            courseDetailsBean.setCourseProgress(String.valueOf(courseProgress));
-            db.updateCourseDetails(courseDetailsBean);
+        if (!isAdded())
+            return;
 
-            int overallProgressPercent = ((db.getAudioCount() + db.getVideoCount() + db.getQuizCount()) * 100) / (3 * db.getCourseDetailsCount());
+        floatingActionButton.setImageResource(android.R.drawable.ic_media_play);
 
-            db.updateOverallProgress(String.valueOf(overallProgressPercent));
-        }
+        CourseDetailsBean courseDetailsBean1 = db.getCourseDetailsByID(courseID);
+        int courseProgress = ((1 + Integer.parseInt(courseDetailsBean1.getVideoStatus()) + Integer.parseInt(courseDetailsBean1.getQuizStatus())) * 100) / 3;
+
+        CourseDetailsBean courseDetailsBean = new CourseDetailsBean();
+        courseDetailsBean.setCourseID(courseID);
+        courseDetailsBean.setAudioStatus("1");
+        courseDetailsBean.setVideoStatus(courseDetailsBean1.getVideoStatus());
+        courseDetailsBean.setQuizStatus(courseDetailsBean1.getQuizStatus());
+        courseDetailsBean.setCourseProgress(String.valueOf(courseProgress));
+        db.updateCourseDetails(courseDetailsBean);
+
+        int overallProgressPercent = ((db.getAudioCount() + db.getVideoCount() + db.getQuizCount()) * 100) / (3 * db.getCourseDetailsCount());
+
+        db.updateOverallProgress(String.valueOf(overallProgressPercent));
+
+        ActivityReporter reporter = new ActivityReporter(getActivity(), this, PreferenceUtil.getEmpID(getActivity()), courseID, 1, 0);
+        reporter.execute();
+//        }
     }
 
     private void setupVisualizerFxAndUI() {

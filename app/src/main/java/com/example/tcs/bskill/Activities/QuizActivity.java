@@ -1,5 +1,6 @@
 package com.example.tcs.bskill.Activities;
 
+import android.content.Intent;
 import android.graphics.Color;
 import android.media.MediaPlayer;
 import android.os.AsyncTask;
@@ -7,16 +8,23 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.app.AppCompatDialog;
+import android.support.v7.widget.AppCompatButton;
 import android.support.v7.widget.AppCompatTextView;
 import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.CompoundButton;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
+import android.widget.ToggleButton;
 
 import com.example.tcs.bskill.Beans.QuestionBean;
+import com.example.tcs.bskill.Interfaces.ReporterCallback;
 import com.example.tcs.bskill.R;
+import com.example.tcs.bskill.Utilities.ActivityReporter;
+import com.example.tcs.bskill.Utilities.PreferenceUtil;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -30,19 +38,23 @@ import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class QuizActivity extends AppCompatActivity implements Runnable {
+public class QuizActivity extends AppCompatActivity implements Runnable, ReporterCallback {
 
-    int getQuestionBeanListSize, score = 0, min = 0, sec = 30, mn = 0, sc = 30, questionBeanListIndex = 0;
     static String ans = null;
+    int getQuestionBeanListSize, score = 0, min = 0, sec = 30, mn = 0, sc = 30, questionBeanListIndex = 0;
     String op_a, op_b, op_c, op_d, m, s;
     MediaPlayer player_p, player_n, player_next, player_back;
+
     TextView timer, player_score, next, cult_q, button_a, button_b, button_c, button_d, player_name, counter;
     ProgressBar progressBar;
     Thread t;
     boolean sf;
+    AppCompatDialog leaderboard;
+    AppCompatButton ok;
     ArrayList<QuestionBean> questionBeanList;
     QuestionBean questionBean;
     private Handler setTime = new Handler();
+    String CourseID;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,7 +84,9 @@ public class QuizActivity extends AppCompatActivity implements Runnable {
         next = (TextView) findViewById(R.id.textView9);
         counter = (TextView) findViewById(R.id.textView7);
 
-        player_name.setText("Pushpal");
+        CourseID = getIntent().getStringExtra("CourseID");
+
+        player_name.setText(PreferenceUtil.getEmpName(this));
 
         new GetQuestions().execute();
 
@@ -234,6 +248,16 @@ public class QuizActivity extends AppCompatActivity implements Runnable {
             }
         });
 
+        ToggleButton toggle = (ToggleButton) findViewById(R.id.toggleButton);
+        toggle.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked) {
+                    player_back.setVolume(0, 0);
+                } else {
+                    player_back.setVolume(1.0f, 1.0f);
+                }
+            }
+        });
         next.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -256,7 +280,35 @@ public class QuizActivity extends AppCompatActivity implements Runnable {
         next.setVisibility(View.INVISIBLE);
 
         if ((questionBeanListIndex + 1) > getQuestionBeanListSize) {
+
+/*            leaderboard = new AppCompatDialog(QuizActivity.this, R.style.AppCompatAlertDialogStyle);
+            leaderboard.setContentView(R.layout.quiz_leaderboard);
+            leaderboard.setCancelable(true);
+            leaderboard.setTitle(R.string.heading2);
+            ok = (AppCompatButton) leaderboard.findViewById(R.id.ok);
+
+            ok.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+
+
+                    leaderboard.dismiss();
+                    finish();
+
+                }
+            });
+            leaderboard.show();
+*/
+            Intent i = new Intent(QuizActivity.this, LeaderBoardActivity.class);
+            i.putExtra("courseID", CourseID);
+            i.putExtra("currentEmpName", player_name.getText());
+            i.putExtra("currentQuizPoints", String.valueOf(score));
+            startActivity(i);
             finish();
+
+            ActivityReporter reporter = new ActivityReporter(this, this, PreferenceUtil.getEmpID(QuizActivity.this), CourseID, 3, score);
+            reporter.execute();
+
         } else {
             counter.setText(String.valueOf(questionBeanListIndex + 1) + "/" + getQuestionBeanListSize);
 
@@ -409,6 +461,17 @@ public class QuizActivity extends AppCompatActivity implements Runnable {
         notify();
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_quiz, menu);
+        return true;
+    }
+
+    @Override
+    public void onResult(String result) {
+        Toast.makeText(QuizActivity.this, result, Toast.LENGTH_SHORT).show();
+    }
+
     private class GetQuestions extends AsyncTask<Void, Void, Void> {
 
         HttpURLConnection conn;
@@ -505,11 +568,5 @@ public class QuizActivity extends AppCompatActivity implements Runnable {
             player_back.start();
             dialog.dismiss();
         }
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_quiz, menu);
-        return true;
     }
 }

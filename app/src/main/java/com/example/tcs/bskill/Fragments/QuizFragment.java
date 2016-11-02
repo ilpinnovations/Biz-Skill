@@ -2,6 +2,8 @@ package com.example.tcs.bskill.Fragments;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatDialog;
+import android.support.v7.widget.AppCompatButton;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,6 +11,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.tcs.bskill.Activities.ContentActivity;
+import com.example.tcs.bskill.Activities.MainActivity;
 import com.example.tcs.bskill.Activities.QuizActivity;
 import com.example.tcs.bskill.Beans.CourseDetailsBean;
 import com.example.tcs.bskill.Databases.DatabaseHandlerCourseStatus;
@@ -19,6 +22,8 @@ public class QuizFragment extends android.support.v4.app.Fragment {
     TextView quizStatus, quizLockStatus, startQuiz;
     ImageView quizLock;
     String courseID;
+    AppCompatDialog aboutQuiz;
+    AppCompatButton ok;
     DatabaseHandlerCourseStatus db;
     ContentActivity contentActivity;
 
@@ -56,12 +61,31 @@ public class QuizFragment extends android.support.v4.app.Fragment {
             quizLockStatus.setText(R.string.a3);
         }
 
+
         startQuiz.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent i = new Intent(contentActivity, QuizActivity.class);
-                startActivity(i);
-                contentActivity.finish();
+
+                aboutQuiz = new AppCompatDialog(getActivity(), R.style.AppCompatAlertDialogStyle);
+                aboutQuiz.setContentView(R.layout.about_quiz);
+                aboutQuiz.setCancelable(true);
+                aboutQuiz.setTitle(R.string.heading2);
+                ok = (AppCompatButton) aboutQuiz.findViewById(R.id.ok);
+
+                ok.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+
+                        Intent i = new Intent(contentActivity, QuizActivity.class);
+                        i.putExtra("CourseID", courseID);
+                        startActivity(i);
+                        aboutQuiz.dismiss();
+                        contentActivity.finish();
+
+                    }
+                });
+                aboutQuiz.show();
+
             }
         });
     }

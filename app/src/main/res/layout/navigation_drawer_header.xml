@@ -12,16 +12,16 @@
         android:orientation="horizontal"
         android:padding="10dp">
 
-        <de.hdodenhof.circleimageview.CircleImageView xmlns:app="http://schemas.android.com/apk/res-auto"
-            android:id="@+id/profile_image"
-            android:layout_width="65dp"
-            android:layout_height="65dp"
-            android:layout_gravity="center_vertical"
-            android:layout_marginLeft="5dp"
-            android:src="@drawable/profile"
-            app:civ_border_color="#ffffff"
-            app:civ_border_width="0dp"
-            app:paddingEnd="5dp" />
+        <!--  <de.hdodenhof.circleimageview.CircleImageView xmlns:app="http://schemas.android.com/apk/res-auto"
+              android:id="@+id/profile_image"
+              android:layout_width="65dp"
+              android:layout_height="65dp"
+              android:layout_gravity="center_vertical"
+              android:layout_marginLeft="5dp"
+              android:src="@drawable/profile"
+              app:civ_border_color="#ffffff"
+              app:civ_border_width="0dp"
+              app:paddingEnd="5dp" />-->
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -34,22 +34,24 @@
             android:paddingRight="16dp">
 
             <TextView
+                android:id="@+id/navName"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:layout_marginBottom="5dp"
+                android:layout_marginStart="@dimen/activity_vertical_margin"
                 android:gravity="center_vertical"
-                android:text="Pushpal Roy"
                 android:textAppearance="?android:attr/textAppearanceMedium"
                 android:textColor="@color/colorWhite"
                 android:textStyle="bold" />
 
             <TextView
+                android:id="@+id/navId"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
+                android:layout_marginStart="@dimen/activity_vertical_margin"
                 android:gravity="center_vertical"
-                android:text="1037186"
                 android:textAppearance="?android:attr/textAppearanceSmall"
                 android:textColor="@color/colorLightDarkerGray" />
 

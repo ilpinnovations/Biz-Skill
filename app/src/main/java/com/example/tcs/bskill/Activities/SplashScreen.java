@@ -9,6 +9,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.tcs.bskill.R;
+import com.example.tcs.bskill.Utilities.PreferenceUtil;
 
 public class SplashScreen extends Activity {
 
@@ -30,8 +31,13 @@ public class SplashScreen extends Activity {
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
-                Intent i = new Intent(SplashScreen.this, LoginActivity.class);
-                startActivity(i);
+                if (PreferenceUtil.getPreference(SplashScreen.this).getBoolean(PreferenceUtil.IS_FIRST_TIME, true)) {
+                    Intent i = new Intent(SplashScreen.this, LoginActivity.class);
+                    startActivity(i);
+                } else {
+                    Intent i = new Intent(SplashScreen.this, MainActivity.class);
+                    startActivity(i);
+                }
                 finish();
             }
         }, 500);

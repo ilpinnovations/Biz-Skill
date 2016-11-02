@@ -1,17 +1,22 @@
 package com.example.tcs.bskill.Activities;
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.speech.RecognizerIntent;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
@@ -22,15 +27,16 @@ import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.example.tcs.bskill.Adapters.CourseRecyclerAdapter;
+import com.example.tcs.bskill.Adapters.NavigationItemsAdapter;
 import com.example.tcs.bskill.Beans.CourseBean;
 import com.example.tcs.bskill.Beans.CourseDetailsBean;
 import com.example.tcs.bskill.Databases.DatabaseHandlerCourseStatus;
 import com.example.tcs.bskill.Interfaces.Communicator;
 import com.example.tcs.bskill.R;
 import com.example.tcs.bskill.Utilities.ConnectionDetector;
+import com.example.tcs.bskill.Utilities.PreferenceUtil;
 import com.github.rahatarmanahmed.cpv.CircularProgressView;
 import com.loopj.android.http.HttpGet;
 import com.miguelcatalan.materialsearchview.MaterialSearchView;
@@ -42,6 +48,7 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.List;
 
 import cz.msebera.android.httpclient.HttpEntity;
 import cz.msebera.android.httpclient.HttpResponse;
@@ -51,28 +58,33 @@ import cz.msebera.android.httpclient.util.EntityUtils;
 
 public class MainActivity extends AppCompatActivity implements Communicator {
 
+    private static final String TAG = MainActivity.class.getSimpleName();
+
+    public static int permissionCheck;
+    final int REQUEST_CODE_RECORD_AUDIO = 1;
     DrawerLayout drawerLayout;
     Toolbar toolbar;
     ActionBar actionBar;
     ArrayList<CourseBean> courseBeanList, filteredList;
     SwipeRefreshLayout swipeRefreshLayout;
-    RecyclerView recyclerView;
+    List<String> navItemsList;
+    List<Integer> navItemsIconsList;
+    RecyclerView recyclerView, recyclerViewItems;
     String jsonStr = "", courseID, courseName, courseDesc, courseAudioURL, courseVideoURL;
     CircularProgressView progressView;
+    NavigationItemsAdapter navigationItemsAdapter;
     LinearLayout progress_status;
     NavigationView navigationView;
     ProgressBar overallProgress;
-    ConnectionDetector cd;
     MaterialSearchView searchView;
     TextView internet, problem_loading_courses, overallProgressPercent;
     DatabaseHandlerCourseStatus db;
+    private Snackbar snackbar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        cd = new ConnectionDetector(getApplicationContext());
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -90,13 +102,45 @@ public class MainActivity extends AppCompatActivity implements Communicator {
         searchView = (MaterialSearchView) findViewById(R.id.search_view);
 
         navigationView = (NavigationView) findViewById(R.id.navigation_view);
-        if (navigationView != null) {
-            setupNavigationDrawerContent(navigationView);
-        }
+
+        TextView navName = (TextView) navigationView.findViewById(R.id.navName);
+        TextView navId = (TextView) navigationView.findViewById(R.id.navId);
+
+        navName.setText(PreferenceUtil.getEmpName(this));
+        navId.setText(PreferenceUtil.getEmpID(this));
 
         recyclerView = (RecyclerView) findViewById(R.id.courseList);
         GridLayoutManager gridLayoutManager = new GridLayoutManager(this, 2);
         recyclerView.setLayoutManager(gridLayoutManager);
+
+
+        recyclerViewItems = (RecyclerView) drawerLayout.findViewById(R.id.navigation_items);
+
+        /**READ_PHONE_STATE PERMISSION FOR MARSHMALLOW**/
+        permissionCheck = ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.RECORD_AUDIO);
+        if (permissionCheck != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(MainActivity.this,
+                    new String[]{Manifest.permission.RECORD_AUDIO},
+                    REQUEST_CODE_RECORD_AUDIO);
+        }
+
+        navItemsList = new ArrayList<>();
+
+        navItemsList.add("My Courses");
+        navItemsList.add("Leader Board");
+        navItemsList.add("My Profile");
+
+        navItemsIconsList = new ArrayList<>();
+
+        navItemsIconsList.add(R.drawable.item_course_icon);
+        navItemsIconsList.add(R.drawable.item_leaderboard_icon);
+        navItemsIconsList.add(R.drawable.item_profile_icon);
+
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
+        recyclerViewItems.setLayoutManager(linearLayoutManager);
+        navigationItemsAdapter = new NavigationItemsAdapter(navItemsList, navItemsIconsList, MainActivity.this);
+        recyclerViewItems.setAdapter(navigationItemsAdapter);
+
 
         /**Setting Up Search View**/
         searchView.setCursorDrawable(R.drawable.custom_cursor);
@@ -141,7 +185,6 @@ public class MainActivity extends AppCompatActivity implements Communicator {
         });
 
         db = new DatabaseHandlerCourseStatus(this);
-
         if (db.getOverallProgressCount() > 0) {
             overallProgress.setMax(100);
             overallProgress.setProgress(Integer.parseInt(db.getOverallProgress()));
@@ -161,6 +204,7 @@ public class MainActivity extends AppCompatActivity implements Communicator {
             public void onDrawerSlide(View drawerView, float slideOffset) {
 
             }
+
 
             @Override
             public void onDrawerOpened(View drawerView) {
@@ -189,6 +233,32 @@ public class MainActivity extends AppCompatActivity implements Communicator {
         });
     }
 
+
+    public void onNavigationItemSelected(int position) {
+        checkInternetConnection(false);
+        if (position == 0) {
+//            checkInternetConnection(false);
+        } else if (position == 1) {
+            if (ConnectionDetector.isConnected(this)){
+                Intent i = new Intent(this, LeaderBoardNavBarActivity.class);
+                startActivity(i);
+            }else {
+                Log.i(TAG, "No internet Connection!");
+            }
+        } else if (position == 2) {
+            if (ConnectionDetector.isConnected(this)){
+                //            Toast.makeText(getApplicationContext(), "Profile", Toast.LENGTH_SHORT).show();
+                Intent i = new Intent(this, ProfileActivity.class);
+                startActivity(i);
+            }else {
+                Log.i(TAG, "No internet Connection!");
+            }
+        }
+
+        drawerLayout.closeDrawer(GravityCompat.START);
+
+    }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == MaterialSearchView.REQUEST_VOICE && resultCode == RESULT_OK) {
@@ -205,28 +275,9 @@ public class MainActivity extends AppCompatActivity implements Communicator {
         super.onActivityResult(requestCode, resultCode, data);
     }
 
-    public void myProgress(View v) {
-        Toast.makeText(getApplicationContext(), "Progress", Toast.LENGTH_SHORT).show();
-        drawerLayout.closeDrawer(GravityCompat.START);
-    }
-
-    public void myCourses(View v) {
-        checkInternetConnection(false);
-        drawerLayout.closeDrawer(GravityCompat.START);
-    }
-
-    public void leaderBoard(View v) {
-        Toast.makeText(getApplicationContext(), "Leader Board", Toast.LENGTH_SHORT).show();
-        drawerLayout.closeDrawer(GravityCompat.START);
-    }
-
-    public void myProfile(View v) {
-        Toast.makeText(getApplicationContext(), "Profile", Toast.LENGTH_SHORT).show();
-        drawerLayout.closeDrawer(GravityCompat.START);
-    }
 
     public void checkInternetConnection(boolean isProgress) {
-        if (cd.isConnectingToInternet()) {
+        if (ConnectionDetector.isConnected(this)) {
             internet.setVisibility(View.INVISIBLE);
             problem_loading_courses.setVisibility(View.INVISIBLE);
             recyclerView.setVisibility(View.VISIBLE);
@@ -247,7 +298,7 @@ public class MainActivity extends AppCompatActivity implements Communicator {
                 swipeRefreshLayout.setRefreshing(false);
             }
 
-            Snackbar snackbar = Snackbar
+            snackbar = Snackbar
                     .make(recyclerView, "No internet connection.", Snackbar.LENGTH_INDEFINITE)
                     .setAction("RETRY", new View.OnClickListener() {
                         @Override
@@ -271,79 +322,6 @@ public class MainActivity extends AppCompatActivity implements Communicator {
         });
     }
 
-    private class GetCourses extends AsyncTask<Void, Void, Void> {
-
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-            courseBeanList = new ArrayList<CourseBean>();
-            progressView.startAnimation();
-        }
-
-        @Override
-        protected Void doInBackground(Void... arg0) {
-            try {
-                DefaultHttpClient httpClient = new DefaultHttpClient();
-                HttpGet httpGet = new HttpGet("http://theinspirer.in/BSkill/getBCourses.php");
-                HttpResponse httpResponse = httpClient.execute(httpGet);
-                HttpEntity httpEntity = httpResponse.getEntity();
-                jsonStr = EntityUtils.toString(httpEntity);
-            } catch (UnsupportedEncodingException e) {
-                e.printStackTrace();
-            } catch (ClientProtocolException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-
-            Log.d("JSONString", jsonStr);
-
-            if (jsonStr != null || !jsonStr.equalsIgnoreCase("")) {
-                try {
-                    JSONObject jsonObj = new JSONObject(jsonStr);
-                    JSONArray result = jsonObj.getJSONArray("result");
-
-                    Log.d("JSONArray", String.valueOf(result));
-
-                    for (int i = 0; i < result.length(); i++) {
-                        JSONObject c = result.getJSONObject(i);
-                        courseID = c.getString("course_id");
-                        courseName = c.getString("course_name");
-                        courseDesc = c.getString("course_description");
-                        courseAudioURL = c.getString("course_audio_url");
-                        courseVideoURL = c.getString("course_video_url");
-                        CourseBean cb1 = new CourseBean(courseID, courseName, courseDesc, courseAudioURL, courseVideoURL);
-                        courseBeanList.add(cb1);
-
-                        if (db.getCourseDetailsCountByID(courseID) == 0)
-                            db.addCourseDetails(new CourseDetailsBean(courseID, "0", "0", "0", "0"));
-
-                    }
-                } catch (JSONException e) {
-                    //problem_loading_courses.setVisibility(View.VISIBLE);
-                    e.printStackTrace();
-                }
-            } else {
-                problem_loading_courses.setVisibility(View.VISIBLE);
-                Log.e("ServiceHandler", "Couldn't get any data from the url");
-            }
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Void result) {
-            super.onPostExecute(result);
-            progress_status.setVisibility(View.GONE);
-            swipeRefreshLayout.setEnabled(true);
-            CourseRecyclerAdapter courseRecyclerAdapter = new CourseRecyclerAdapter(MainActivity.this, courseBeanList);
-            recyclerView.setAdapter(courseRecyclerAdapter);
-
-            if (swipeRefreshLayout.isRefreshing()) {
-                swipeRefreshLayout.setRefreshing(false);
-            }
-        }
-    }
-
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
@@ -352,46 +330,6 @@ public class MainActivity extends AppCompatActivity implements Communicator {
                 return true;
         }
         return super.onOptionsItemSelected(item);
-    }
-
-    private void setupNavigationDrawerContent(NavigationView navigationView) {
-        navigationView.setNavigationItemSelectedListener(
-                new NavigationView.OnNavigationItemSelectedListener() {
-                    @Override
-                    public boolean onNavigationItemSelected(MenuItem menuItem) {
-                        switch (menuItem.getItemId()) {
-                            case R.id.item_navigation_drawer_inbox:
-                                menuItem.setChecked(true);
-                                drawerLayout.closeDrawer(GravityCompat.START);
-                                return true;
-                            case R.id.item_navigation_drawer_starred:
-                                menuItem.setChecked(true);
-                                drawerLayout.closeDrawer(GravityCompat.START);
-                                return true;
-                            case R.id.item_navigation_drawer_sent_mail:
-                                menuItem.setChecked(true);
-                                drawerLayout.closeDrawer(GravityCompat.START);
-                                return true;
-                            case R.id.item_navigation_drawer_drafts:
-                                menuItem.setChecked(true);
-                                drawerLayout.closeDrawer(GravityCompat.START);
-                                return true;
-                            case R.id.item_navigation_drawer_settings:
-                                menuItem.setChecked(true);
-                                Toast.makeText(MainActivity.this, "Launching " + menuItem.getTitle().toString(), Toast.LENGTH_SHORT).show();
-                                drawerLayout.closeDrawer(GravityCompat.START);
-                                Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
-                                startActivity(intent);
-                                return true;
-                            case R.id.item_navigation_drawer_help_and_feedback:
-                                menuItem.setChecked(true);
-                                Toast.makeText(MainActivity.this, menuItem.getTitle().toString(), Toast.LENGTH_SHORT).show();
-                                drawerLayout.closeDrawer(GravityCompat.START);
-                                return true;
-                        }
-                        return true;
-                    }
-                });
     }
 
     @Override
@@ -426,5 +364,78 @@ public class MainActivity extends AppCompatActivity implements Communicator {
         MenuItem item = menu.findItem(R.id.action_search);
         searchView.setMenuItem(item);
         return true;
+    }
+
+    private class GetCourses extends AsyncTask<Void, Void, Void> {
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            courseBeanList = new ArrayList<CourseBean>();
+            progressView.startAnimation();
+        }
+
+        @Override
+        protected Void doInBackground(Void... arg0) {
+            try {
+                DefaultHttpClient httpClient = new DefaultHttpClient();
+                HttpGet httpGet = new HttpGet("http://theinspirer.in/BSkill/getBCourses.php");
+                HttpResponse httpResponse = httpClient.execute(httpGet);
+                HttpEntity httpEntity = httpResponse.getEntity();
+                jsonStr = EntityUtils.toString(httpEntity);
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+            } catch (ClientProtocolException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            Log.d("JSONString", jsonStr);
+
+            if (jsonStr != null && !jsonStr.equalsIgnoreCase("")) {
+                try {
+                    JSONObject jsonObj = new JSONObject(jsonStr);
+                    JSONArray result = jsonObj.getJSONArray("result");
+
+                    Log.d("JSONArray", String.valueOf(result));
+
+                    for (int i = 0; i < result.length(); i++) {
+                        JSONObject c = result.getJSONObject(i);
+                        courseID = c.getString("course_id");
+                        courseName = c.getString("course_name");
+                        courseDesc = c.getString("course_description");
+                        courseAudioURL = c.getString("course_audio_url");
+                        courseVideoURL = c.getString("course_video_url");
+                        CourseBean cb1 = new CourseBean(courseID, courseName, courseDesc, courseAudioURL, courseVideoURL);
+                        courseBeanList.add(cb1);
+
+                        if (db.getCourseDetailsCountByID(courseID) == 0)
+                            db.addCourseDetails(new CourseDetailsBean(courseID, "0", "0", "0", "0"));
+
+                    }
+                } catch (JSONException e) {
+                    //problem_loading_courses.setVisibility(View.VISIBLE);
+                    e.printStackTrace();
+                }
+            } else {
+//                problem_loading_courses.setVisibility(View.VISIBLE);
+                Log.e("ServiceHandler", "Couldn't get any data from the url");
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void result) {
+            super.onPostExecute(result);
+            progress_status.setVisibility(View.GONE);
+            swipeRefreshLayout.setEnabled(true);
+            CourseRecyclerAdapter courseRecyclerAdapter = new CourseRecyclerAdapter(MainActivity.this, courseBeanList);
+            recyclerView.setAdapter(courseRecyclerAdapter);
+
+            if (swipeRefreshLayout.isRefreshing()) {
+                swipeRefreshLayout.setRefreshing(false);
+            }
+        }
     }
 }
