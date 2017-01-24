@@ -15,6 +15,7 @@ import com.example.tcs.bskill.Databases.DatabaseHandlerCourseStatus;
 import com.example.tcs.bskill.Interfaces.ReporterCallback;
 import com.example.tcs.bskill.R;
 import com.example.tcs.bskill.Utilities.ActivityReporter;
+import com.example.tcs.bskill.Utilities.ConnectionDetector;
 import com.example.tcs.bskill.Utilities.PreferenceUtil;
 import com.google.android.youtube.player.YouTubeInitializationResult;
 import com.google.android.youtube.player.YouTubePlayer;
@@ -23,7 +24,7 @@ import com.google.android.youtube.player.YouTubePlayerSupportFragment;
 public class VideoFragment extends android.support.v4.app.Fragment implements ReporterCallback {
     private static final String API_KEY = "AIzaSyALFWDKEVLY4UQMjU5b5qCkWmS1ArE0hgc";
     String courseVideoURL, courseID;
-    YouTubePlayer YouPlayer;
+    YouTubePlayer youPlayer;
     DatabaseHandlerCourseStatus db;
 
     public VideoFragment() {
@@ -92,8 +93,12 @@ public class VideoFragment extends android.support.v4.app.Fragment implements Re
                         int overallProgressPercent = ((db.getAudioCount() + db.getVideoCount() + db.getQuizCount()) / (3 * db.getCourseDetailsCount())) * 100;
                         db.updateOverallProgress(String.valueOf(overallProgressPercent));
 
-                        ActivityReporter reporter = new ActivityReporter(getActivity(), VideoFragment.this, PreferenceUtil.getEmpID(getActivity()), courseID, 2, 0);
-                        reporter.execute();
+                        if (ConnectionDetector.isConnected(getActivity())){
+                            ActivityReporter reporter = new ActivityReporter(getActivity(), VideoFragment.this, PreferenceUtil.getEmpID(getActivity()), courseID, 2, 0);
+                            reporter.execute();
+                        }else {
+                            Log.d("VideoFragment", "No internet connection!");
+                        }
                     }
 
                     @Override
@@ -137,7 +142,7 @@ public class VideoFragment extends android.support.v4.app.Fragment implements Re
                     if (player.isPlaying())
                         player.pause();
                 }
-                YouPlayer = player;
+                youPlayer = player;
             }
 
             @Override
@@ -149,6 +154,24 @@ public class VideoFragment extends android.support.v4.app.Fragment implements Re
     }
 
     @Override
+    public void setUserVisibleHint(boolean isVisibleToUser) {
+        super.setUserVisibleHint(isVisibleToUser);
+
+        //Make sure that the application is currently visible
+        if (this.isVisible()){
+            // If the current fragment is invisible
+            // stop the audio
+            if (!isVisibleToUser){
+                Log.d("AudioFragment", "Not visible anymore! Stoppig audio");
+                youPlayer.pause();
+            }else {
+                Log.d("AudioFragment", "Visible again");
+                youPlayer.play();
+            }
+        }
+    }
+
+    @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
     }
@@ -157,8 +180,33 @@ public class VideoFragment extends android.support.v4.app.Fragment implements Re
     public void onPause() {
         super.onPause();
 
-        if (YouPlayer != null && YouPlayer.isPlaying())
-            YouPlayer.pause();
+        if (youPlayer != null && youPlayer.isPlaying())
+            youPlayer.pause();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (youPlayer != null && !youPlayer.isPlaying())
+            youPlayer.play();
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        if (youPlayer != null && !youPlayer.isPlaying())
+            youPlayer.play();
+
+        if (!ConnectionDetector.isConnected(getActivity())){
+            Toast.makeText(getActivity(), "Check the internet connection!", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        if (youPlayer != null && youPlayer.isPlaying())
+            youPlayer.pause();
     }
 
     @Override

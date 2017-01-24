@@ -243,15 +243,16 @@ public class MainActivity extends AppCompatActivity implements Communicator {
                 Intent i = new Intent(this, LeaderBoardNavBarActivity.class);
                 startActivity(i);
             }else {
-                Log.i(TAG, "No internet Connection!");
+//                Log.i(TAG, "No internet Connection!");
             }
         } else if (position == 2) {
+            Log.i(TAG, "position = 2");
+            Intent i = new Intent(this, ProfileActivity.class);
+            startActivity(i);
             if (ConnectionDetector.isConnected(this)){
                 //            Toast.makeText(getApplicationContext(), "Profile", Toast.LENGTH_SHORT).show();
-                Intent i = new Intent(this, ProfileActivity.class);
-                startActivity(i);
             }else {
-                Log.i(TAG, "No internet Connection!");
+//                Log.i(TAG, "No internet Connection!");
             }
         }
 

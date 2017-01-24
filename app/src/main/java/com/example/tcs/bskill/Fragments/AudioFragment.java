@@ -20,6 +20,7 @@ import com.example.tcs.bskill.Databases.DatabaseHandlerCourseStatus;
 import com.example.tcs.bskill.Interfaces.ReporterCallback;
 import com.example.tcs.bskill.R;
 import com.example.tcs.bskill.Utilities.ActivityReporter;
+import com.example.tcs.bskill.Utilities.ConnectionDetector;
 import com.example.tcs.bskill.Utilities.PreferenceUtil;
 import com.example.tcs.bskill.Utilities.Vizualizer.VisualizerView;
 import com.github.rahatarmanahmed.cpv.CircularProgressView;
@@ -102,9 +103,32 @@ public class AudioFragment extends android.support.v4.app.Fragment implements Me
     }
 
     @Override
+    public void setUserVisibleHint(boolean isVisibleToUser) {
+        super.setUserVisibleHint(isVisibleToUser);
+
+        //Make sure that the application is currently visible
+        if (this.isVisible()){
+            // If the current fragment is invisible
+            // stop the audio
+            if (!isVisibleToUser){
+                Log.d("AudioFragment", "Not visible anymore! Stopping audio");
+                mediaPlayer.pause();
+            }else {
+                Log.d("AudioFragment", "Visible again");
+                mediaPlayer.start();
+            }
+        }else {
+            if (mediaPlayer !=  null){
+                Log.d("AudioFragment", "Not visible anymore! Stoppig audio");
+                mediaPlayer.pause();
+            }
+        }
+    }
+
+    @Override
     public void onDestroyView() {
         if (mediaPlayer != null)
-            mediaPlayer.stop();
+            mediaPlayer.pause();
 //        gettingDestroyed = true;
         super.onDestroyView();
     }
@@ -171,6 +195,38 @@ public class AudioFragment extends android.support.v4.app.Fragment implements Me
     }
 
     @Override
+    public void onStart() {
+        super.onStart();
+        if (mediaPlayer != null && !mediaPlayer.isPlaying()){
+            mediaPlayer.start();
+        }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (mediaPlayer != null && !mediaPlayer.isPlaying()){
+            mediaPlayer.start();
+        }
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        if (mediaPlayer != null && mediaPlayer.isPlaying()){
+            mediaPlayer.pause();
+        }
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        if (mediaPlayer != null && mediaPlayer.isPlaying()){
+            mediaPlayer.pause();
+        }
+    }
+
+    @Override
     public void onCompletion(MediaPlayer mp) {
 
 //        if (!gettingDestroyed) {
@@ -200,8 +256,13 @@ public class AudioFragment extends android.support.v4.app.Fragment implements Me
 
         db.updateOverallProgress(String.valueOf(overallProgressPercent));
 
-        ActivityReporter reporter = new ActivityReporter(getActivity(), this, PreferenceUtil.getEmpID(getActivity()), courseID, 1, 0);
-        reporter.execute();
+        if (ConnectionDetector.isConnected(getActivity())){
+            ActivityReporter reporter = new ActivityReporter(getActivity(), this, PreferenceUtil.getEmpID(getActivity()), courseID, 1, 0);
+            reporter.execute();
+        }else {
+            Toast.makeText(getActivity(), "Check the internet connection!", Toast.LENGTH_SHORT).show();
+            Log.d("AudioFragment", "No internet connection!");
+        }
 //        }
     }
 
